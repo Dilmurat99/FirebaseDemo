@@ -16,3 +16,12 @@ data class FBMessage(
     val notification: NotificationModel,
     val data: DataModel
 )
+
+data class MyUser(
+    val name: String,
+    val token: String
+) {
+    override fun toString(): String {
+        return name
+    }
+}

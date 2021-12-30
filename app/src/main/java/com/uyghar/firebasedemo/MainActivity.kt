@@ -7,6 +7,8 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.Menu
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -22,6 +24,7 @@ import com.uyghar.firebasedemo.databinding.ActivityMainBinding
 import com.uyghar.firebasedemo.databinding.FragmentHomeBinding
 import com.uyghar.firebasedemo.models.DataModel
 import com.uyghar.firebasedemo.models.FBMessage
+import com.uyghar.firebasedemo.models.MyUser
 import com.uyghar.firebasedemo.models.NotificationModel
 import com.uyghar.firebasedemo.ui.home.HomeFragment
 import okhttp3.*
@@ -62,6 +65,7 @@ class MainActivity : AppCompatActivity() {
             sendNotification("Alo", fragmentHomeBinding.editMessage.text.toString(), 0, token ?: "")
         }
 
+        getUsers()
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
@@ -106,11 +110,11 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    /*
-    fun getUser(){
+
+    fun getUsers(){
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url(URL("http://reqres.in/api/users?page=$page"))
+            .url(URL("http://172.104.143.75:8004/api/ezalar/"))
             .build()
         client.newCall(request).enqueue(
             object: Callback {
@@ -121,26 +125,18 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     val json_str = response.body?.string()
                     val gson = GsonBuilder().create()
-                    val user_data = gson.fromJson(json_str, UserDB::class.java)
-                    if (page == 1)
-                        users = ArrayList(user_data.data)
-                    else
-                        users.addAll(ArrayList(user_data.data))
-                    total_pages = user_data.total_pages ?: 0
-                    activity?.runOnUiThread {
-                        val adapter = UserAdapter(users)
-                        adapter.onclick = {
-                            (activity as MainActivity).showNotification(it)
-                        }
-                        binding.recyclerView.adapter = adapter
-                        binding.refresher.isRefreshing = false
+                    val users = gson.fromJson(json_str, Array<MyUser>::class.java)
+                    val users_str  = users.map { it.name }
+                    runOnUiThread {
+                        fragmentHomeBinding.listUsers.adapter = ArrayAdapter(this@MainActivity,android.R.layout.simple_list_item_1,users_str)
+
                     }
 
                 }
 
             }
         )
-    }*/
+    }
 
 
 
