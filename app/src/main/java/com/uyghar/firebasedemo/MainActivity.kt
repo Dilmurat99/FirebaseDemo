@@ -56,17 +56,19 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.appBarMain.fab.setOnClickListener {
-            Log.i("text", messageText.text.toString())
+            val prefrences = this.getSharedPreferences("firebase", Context.MODE_PRIVATE)
+            val token = prefrences.getString("token","")
+            sendNotification("Alo", messageText.text.toString(), 0, token ?: "")
         }
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
 
-    fun sendNotification(title: String, body: String, id: Int) {
+    fun sendNotification(title: String, body: String, id: Int, token: String) {
         val notificationModel = NotificationModel(title,body,"high",true)
         val dataModel = DataModel(id)
-        val token = "eQAq9PzySZyVgCz89ToEK2:APA91bFp1lhbwRatjnpoSs8tFKBHXWII64DD0lNxn71psuFHCNRw6fvuTH-VFrLlYcWXRg-ckr2BoN1mgkG13WSn9z-0SD3nM_gqbgGFBMo-svcco8Ed29tCn1gPadIddSSB2QvF_Imx"
+        //val token = "eQAq9PzySZyVgCz89ToEK2:APA91bFp1lhbwRatjnpoSs8tFKBHXWII64DD0lNxn71psuFHCNRw6fvuTH-VFrLlYcWXRg-ckr2BoN1mgkG13WSn9z-0SD3nM_gqbgGFBMo-svcco8Ed29tCn1gPadIddSSB2QvF_Imx"
         val fbMessage = FBMessage(token,notificationModel, dataModel)
         val gson = GsonBuilder().create()
         val json_param = gson.toJson(fbMessage)
