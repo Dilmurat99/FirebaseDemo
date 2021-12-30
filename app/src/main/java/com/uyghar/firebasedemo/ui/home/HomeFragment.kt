@@ -32,10 +32,9 @@ class HomeFragment : Fragment() {
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
+        (activity as MainActivity).messageText = binding.editMessage
         return root
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -44,4 +43,6 @@ class HomeFragment : Fragment() {
 
 
 }
+
+
 

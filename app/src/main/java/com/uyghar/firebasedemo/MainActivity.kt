@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.Menu
 import android.view.View
+import android.widget.EditText
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    lateinit var messageText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,11 +56,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.appBarMain.fab.setOnClickListener {
-
-
-
-
-
+            Log.i("text", messageText.text.toString())
         }
 
         setupActionBarWithNavController(navController, appBarConfiguration)
