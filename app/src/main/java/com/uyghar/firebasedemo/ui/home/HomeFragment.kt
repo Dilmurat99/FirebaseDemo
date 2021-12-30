@@ -32,7 +32,7 @@ class HomeFragment : Fragment() {
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
-        (activity as MainActivity).messageText = binding.editMessage
+        (activity as MainActivity).fragmentHomeBinding = binding
         return root
     }
 

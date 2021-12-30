@@ -19,6 +19,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import com.uyghar.firebasedemo.databinding.ActivityMainBinding
+import com.uyghar.firebasedemo.databinding.FragmentHomeBinding
 import com.uyghar.firebasedemo.models.DataModel
 import com.uyghar.firebasedemo.models.FBMessage
 import com.uyghar.firebasedemo.models.NotificationModel
@@ -33,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    lateinit var messageText: EditText
+    lateinit var fragmentHomeBinding: FragmentHomeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         binding.appBarMain.fab.setOnClickListener {
             val prefrences = this.getSharedPreferences("firebase", Context.MODE_PRIVATE)
             val token = prefrences.getString("token","")
-            sendNotification("Alo", messageText.text.toString(), 0, token ?: "")
+            sendNotification("Alo", fragmentHomeBinding.editMessage.text.toString(), 0, token ?: "")
         }
 
         setupActionBarWithNavController(navController, appBarConfiguration)
@@ -104,6 +105,42 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
+
+    /*
+    fun getUser(){
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(URL("http://reqres.in/api/users?page=$page"))
+            .build()
+        client.newCall(request).enqueue(
+            object: Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    e.printStackTrace()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val json_str = response.body?.string()
+                    val gson = GsonBuilder().create()
+                    val user_data = gson.fromJson(json_str, UserDB::class.java)
+                    if (page == 1)
+                        users = ArrayList(user_data.data)
+                    else
+                        users.addAll(ArrayList(user_data.data))
+                    total_pages = user_data.total_pages ?: 0
+                    activity?.runOnUiThread {
+                        val adapter = UserAdapter(users)
+                        adapter.onclick = {
+                            (activity as MainActivity).showNotification(it)
+                        }
+                        binding.recyclerView.adapter = adapter
+                        binding.refresher.isRefreshing = false
+                    }
+
+                }
+
+            }
+        )
+    }*/
 
 
 
