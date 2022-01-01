@@ -1,5 +1,7 @@
 package com.uyghar.firebasedemo.services
 
+import android.annotation.SuppressLint
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -8,16 +10,31 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.uyghar.firebasedemo.MainActivity
 import com.uyghar.firebasedemo.R
+
 import java.io.IOException
 import java.net.URL
 //isim:String, token: String
+
+object Events {
+    val serviceEvent: MutableLiveData<String> by lazy {
+        MutableLiveData<String>()
+    }
+}
+
 class MyFirebaseMessagingService: FirebaseMessagingService() {
     private val CHANNEL_ID = "TEST"
+
+
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         //token bilen isim ni servergha yollaymiz
@@ -29,9 +46,15 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         Log.i("firebase_token", token)
     }
 
+    @SuppressLint("WrongThread")
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         Log.i("firebase_message", message.notification?.body.toString())
+
+
+        Events.serviceEvent.postValue(message.notification?.body.toString())
+        //mt?.onChange(message.notification?.body.toString())
+        //model.text.postValue(message.notification?.body ?: "")
         showNotification(message.notification?.title, message.notification?.body, 0)
     }
 
@@ -72,6 +95,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
     }
+
 
 
 }

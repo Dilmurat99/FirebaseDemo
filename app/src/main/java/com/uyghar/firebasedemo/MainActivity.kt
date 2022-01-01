@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import androidx.activity.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -19,6 +20,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.google.gson.GsonBuilder
 import com.uyghar.firebasedemo.databinding.ActivityMainBinding
 import com.uyghar.firebasedemo.databinding.FragmentHomeBinding
@@ -26,6 +28,8 @@ import com.uyghar.firebasedemo.models.DataModel
 import com.uyghar.firebasedemo.models.FBMessage
 import com.uyghar.firebasedemo.models.MyUser
 import com.uyghar.firebasedemo.models.NotificationModel
+import com.uyghar.firebasedemo.services.Events
+import com.uyghar.firebasedemo.services.MyFirebaseMessagingService
 import com.uyghar.firebasedemo.ui.home.HomeFragment
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -37,13 +41,33 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    lateinit var fragmentHomeBinding: FragmentHomeBinding
+    var fragmentHomeBinding: FragmentHomeBinding? = null
+    private lateinit var users: Array<MyUser>
+    private var chat = ArrayList<String>()
+    private lateinit var user: MyUser
+
+
+    fun refreshChat() {
+        fragmentHomeBinding?.listUsers?.adapter = ArrayAdapter(this@MainActivity,android.R.layout.simple_list_item_1,chat)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val mf = MyFirebaseMessagingService()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        Events.serviceEvent.observe(this) {
+            chat.add(it)
+            refreshChat()
+        }
+
+        fragmentHomeBinding?.listUsers?.setOnItemClickListener { adapterView, view, i, l ->
+            user = users.get(i)
+            val token = user.token
+            val name = user.name
+            binding.appBarMain.toolbar.title = name
+
+        }
 
 
         setSupportActionBar(binding.appBarMain.toolbar)
@@ -61,8 +85,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.appBarMain.fab.setOnClickListener {
             val prefrences = this.getSharedPreferences("firebase", Context.MODE_PRIVATE)
-            val token = prefrences.getString("token","")
-            sendNotification("Alo", fragmentHomeBinding.editMessage.text.toString(), 0, token ?: "")
+            //val token = prefrences.getString("token","")
+            var chatText = fragmentHomeBinding?.editMessage?.text.toString()
+            chat.add(chatText)
+            refreshChat()
+            sendNotification(user.name,chatText , 0, user.token ?: "")
         }
 
         getUsers()
@@ -125,11 +152,10 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call, response: Response) {
                     val json_str = response.body?.string()
                     val gson = GsonBuilder().create()
-                    val users = gson.fromJson(json_str, Array<MyUser>::class.java)
-                    val users_str  = users.map { it.name }
-                    runOnUiThread {
-                        fragmentHomeBinding.listUsers.adapter = ArrayAdapter(this@MainActivity,android.R.layout.simple_list_item_1,users_str)
+                    users = gson.fromJson(json_str, Array<MyUser>::class.java)
 
+                    runOnUiThread {
+                        fragmentHomeBinding?.listUsers?.adapter = ArrayAdapter(this@MainActivity,android.R.layout.simple_list_item_1,users)
                     }
 
                 }
@@ -137,6 +163,7 @@ class MainActivity : AppCompatActivity() {
             }
         )
     }
+
 
 
 
